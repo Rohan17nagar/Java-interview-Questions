@@ -1975,3 +1975,91 @@ Think of using raw threads versus an ExecutorService like a Bank Managing Custom
 **The Raw Thread Approach (No Executor):** Imagine a chaotic bank branch with no line or waiting area. Every time a single customer walks through the front door, the branch immediately hires a brand-new, full-time teller, builds a physical brick desk right on the floor, and assigns them to that customer (new Thread()). If 5,000 customers run inside at 9:00 AM, the building's walls physically burst out from over-crowding, and the company goes bankrupt due to setup costs. When a customer leaves, the bank tears down the desk and fires the teller immediately, only to rebuild it seconds later for the next visitor.
 
 **The ExecutorService Approach (Thread Pool):** The bank manager builds a smart, optimized branch layout. They construct exactly 4 permanent teller windows (A Fixed Thread Pool of size 4) and set up a single-file velvet rope line in the center lobby (The Task Queue). When 100 customers arrive, the 4 tellers immediately start processing the first 4 clients. The remaining 96 customers stand organized inside the velvet rope queue. As soon as Teller #2 finishes with a client, they don't get fired—they simply look at the queue and call the next customer forward. The branch remains stable, memory consumption is predictable, and resource management is perfectly controlled.
+
+### 40. What is Synchronization in Java? What are its types?
+
+#### 1. Definition
+
+Synchronization in Java is a mechanism that controls the access of multiple threads to shared resources. Without synchronization, concurrent threads can read and write to the same memory variables at the same time, leading to severe data corruption, race conditions, and inconsistent application state.
+
+Synchronization is built around the concept of an internal lock or monitor. Every object in Java has a monitor associated with it. When a thread requests access to a synchronized block or method, it must first acquire that object's monitor. While the thread holds the monitor, all other threads attempting to access any synchronized code guarded by that same lock are blocked and placed into a waiting queue.
+
+#### 2. Types of Synchronization
+
+Java provides two primary levels of synchronization depending on the scope of the lock required:
+
+1. Instance-Level Synchronization (Object Lock)
+   Locks are tied to a specific instance of a class. It prevents multiple threads from accessing the synchronized code on the same object instance simultaneously. Threads can, however, execute the same code concurrently on different instances of that class.
+
+Synchronized Method: Locks the entire object (this) for the duration of the method call.
+
+Synchronized Block: Locks only a specific, targeted section of code using a designated object reference. This is more efficient than a synchronized method because it minimizes the duration of the lock.
+
+2. Class-Level Synchronization (Class Lock)
+   Locks are tied directly to the class's java.lang.Class object rather than a specific instance. It ensures that only one thread can execute that code across the entire application runtime, regardless of how many instances of that object exist in memory.
+
+Static Synchronized Method: Locks the entire .class blueprint object.
+
+Synchronized Block inside Static Context: Locks a specified static object reference or the explicit class metadata (ClassName.class).
+
+#### 3. Code Example
+
+The following example demonstrates both instance-level locking (for independent bank accounts) and class-level locking (for a shared global exchange rate ledger) to handle multithreaded operations safely.
+
+```java
+public class CentralBankingSystem {
+
+    // Global shareable variable guarded by a Class-Level Lock
+    private static double globalExchangeRate = 1.0;
+
+    // Instance variable guarded by an Instance-Level Lock
+    private double accountBalance = 1000.0;
+
+    // ==========================================
+    // 1. INSTANCE-LEVEL SYNCHRONIZATION EXAMPLES
+    // ==========================================
+
+    // A. Synchronized Method (Locks 'this' instance)
+    public synchronized void deposit(double amount) {
+        this.accountBalance += amount;
+    }
+
+    // B. Synchronized Block (Targeted lock on 'this' instance)
+    public void withdraw(double amount) {
+        // Unsynchronized code can run here freely...
+        System.out.println(Thread.currentThread().getName() + " initiating withdrawal authorization...");
+
+        synchronized (this) { // Only this block forces sequential thread execution
+            if (this.accountBalance >= amount) {
+                this.accountBalance -= amount;
+            }
+        }
+    }
+
+    // =======================================
+    // 2. CLASS-LEVEL SYNCHRONIZATION EXAMPLES
+    // =======================================
+
+    // A. Static Synchronized Method (Locks CentralBankingSystem.class)
+    public static synchronized void updateRateStaticMethod(double newRate) {
+        globalExchangeRate = newRate;
+    }
+
+    // B. Static Synchronized Block (Targeted lock on Class object)
+    public static void logRateChange(double newRate) {
+        System.out.println("Preparing system-wide broadcast...");
+
+        synchronized (CentralBankingSystem.class) { // Enforces global single-thread access
+            globalExchangeRate = newRate;
+        }
+    }
+
+    public double getBalance() { return this.accountBalance; }
+}
+```
+
+#### 4. Real-World Analogy
+
+**Think of synchronization like the access control mechanics of Private Security Vault Rooms inside a World Bank HQ:** Instance-Level Synchronization is like locking an individual Safe Deposit Locker: Customer Alice and Customer Bob both own independent deposit lockers at the branch _(two distinct object instances)_. Alice goes into the vault room to modify her locker, and she snaps a padlock on her box while counting her cash (Instance Lock). Bob can walk right past her and open his own locker simultaneously without waiting, because their resources are distinct. However, if Alice's business partner tries to open Alice's exact box at the same time, they will find it locked and must wait for her to finish.
+
+**Class-Level Synchronization is like locking the Main Branch Front Gate:** At midnight, the regional corporate office orders a security update to the central computer server core that controls all lockers in the building. The security guard steps to the main entrance of the building and locks the front revolving doors `(CentralBankingSystem.class)`. Now, it doesn't matter which locker a customer wants to access, or how many individual keys they hold—the entire facility is halted for everyone across the board until the global update completes.
