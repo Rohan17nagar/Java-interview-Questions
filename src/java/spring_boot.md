@@ -139,7 +139,7 @@ import org.springframework.boot.SpringApplication
 // Annotation
 @Configuration
 public class GFG {
-    @Bean(name = gfg) 
+    @Bean(name = gfg)
       public demoClass demo(){
         // Data
     }
@@ -147,6 +147,7 @@ public class GFG {
 ```
 
 @EnableAutoConfiguration Annotation:
+
 - This annotation will automatically configures our application we don't need to configure manually.
 - It enables the auto-configuration feature of Spring Boot.
 
@@ -156,7 +157,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 // Annotaion used
-@EnableAutoConfiguration  
+@EnableAutoConfiguration
 public class GFG {
     public static void main (String[] args) {
         SpringApplication(&quot;GFG.class, args&quot;);
@@ -168,16 +169,213 @@ public class GFG {
 > Here we have used @EnableAutoConfiguration annotation along with the class name to perform the automatic configuration over an application.
 
 #### 7. @ComponentScan Annotation:
+
 - This annotation will automatically scans all the beans and package declaration when the application initializes inside the class path.
 - It will automatically scan all the components added to our project.
 
 ```java
 // @ComponentScan Annotation
 @ComponentScan(&quot;com.geeksforgeeks.springboot&quot;)
-@SpringBootApplication 
+@SpringBootApplication
 public class GFG {
       // Data
 }
 ```
+
 > Automatically discovers components annotated with @Component, @Service, @Repository, or @RestController within its package tree.
 
+### 7. What are the Spring Boot Starter Dependencies?
+
+Spring Boot provides many starter dependencies. Some of them which are used the most in the Spring Boot application are listed below:
+
+- Data JPA starter
+- Web starter
+- Security starter
+- Test Starter
+- Thymeleaf starter
+
+### 8. What are the basic Spring Boot Annotations?
+
+#### 1. Common Spring boot annotations:
+
+- **@SpringBootApplication:** This is the main annotation used to bootstrap a Spring Boot application. It combines three annotations: @Configuration , @EnableAutoConfiguration , and @ComponentScan . It is typically placed on the main class of the application.
+- **@Configuration:** This annotation is used to indicate that a class contains configuration methods for the application context. It is typically used in combination with @Bean annotations to define beans and their dependencies.
+- **@Component:** This annotation is the most generic annotation for any Spring-managed component. It is used to mark a class as a Spring bean that will be managed by the Spring container.
+- **@RestController:** This annotation is used to define a RESTful web service controller. It is a specialized version of the @Controller annotation that includes the @ResponseBody annotation by default.
+- **@RequestMapping:** This annotation is used to map HTTP requests to a specific method in a controller. It can be applied at the class level to define a base URL for all methods in the class, or at the method level to specify a specific URL mapping.
+- **@Bean:** Used to define a Spring bean explicitly inside a configuration class. Gives full control over bean creation and lifecycle.
+
+  ```java
+  @Configuration
+  public class AppConfig {
+  @Bean
+  public RestTemplate restTemplate() {
+  return new RestTemplate();
+  }
+  }
+  ```
+
+#### 2. Dependency Injection Annotations
+
+@Autowired: Automatically injects required dependencies into a class. Eliminates the need for manual object creation.
+
+```java
+@Autowired
+private UserService userService;
+```
+
+@Qualifier
+Specifies which bean to inject when multiple beans of the same type exist.
+
+```java
+@Autowired
+@Qualifier("emailService")
+private NotificationService service;
+```
+
+@Primary
+Marks a bean as the default choice among multiple candidates. Used when no @Qualifier is explicitly specified.
+
+```java
+@Primary
+@Component
+public class SmsService implements NotificationService {
+}
+```
+
+#### 3. Web and REST API Annotations
+
+@RestController
+Used to create RESTful web services and automatically returns data in JSON or XML format.
+
+```java
+@RestController
+public class HelloController {
+}
+```
+
+@RequestMapping
+Maps HTTP requests to controller classes or methods. Defines the base URL path for request handling.
+
+```java
+@RequestMapping("/api")
+public class ApiController {
+}
+```
+
+#### 4. HTTP Method Annotations
+
+| Annotation     | HTTP Method | Explanation                    |
+| :------------- | :---------- | :----------------------------- |
+| @GetMapping    | GET         | Retrieves data from the server |
+| @PostMapping   | POST        | Sends data to the server       |
+| @PutMapping    | PUT         | Updates existing data          |
+| @DeleteMapping | DELETE      | Deletes data                   |
+
+**Example:**
+
+```java
+@GetMapping("/users")
+public List<User> getUsers() {
+return userService.getAllUsers();
+}
+```
+
+@PathVariable
+Extracts values from the URI path and binds them to method parameters.
+
+```java
+@GetMapping("/users/{id}")
+public User getUser(@PathVariable int id) {
+return userService.getUser(id);
+}
+```
+
+@RequestParam
+Reads query parameters from the request URL. Used for optional or filtering inputs.
+
+```java
+@GetMapping("/search")
+public String search(@RequestParam String keyword) {
+return keyword;
+}
+```
+
+@RequestBody
+Binds the HTTP request body to a Java object. Commonly used with POST and PUT requests.
+
+```java
+@PostMapping("/users")
+public User saveUser(@RequestBody User user) {
+return userService.save(user);
+}
+```
+
+#### 5. Configuration and Properties Annotations
+
+@Value
+Injects individual property values from application.properties or application.yml.
+
+```java
+@Value("${server.port}")
+private String port;
+```
+
+@ConfigurationProperties
+Binds a group of related configuration properties to a POJO in a type-safe manner.
+
+```java
+@ConfigurationProperties(prefix = "app")
+public class AppConfig {
+private String name;
+}
+```
+
+#### 6. Validation Annotations
+
+Validation annotations ensure input data correctness.
+
+- @NotNull - Field value must not be null
+- @NotBlank - String must contain at least one non-whitespace character
+- @Email - Validates email format
+- @Size - Restricts field length or size.
+
+  ```java
+  public class User {
+  @NotBlank
+  private String username;
+  @Email
+  private String email;
+  }
+  ```
+
+#### 7. Exception Handling Annotations
+
+@ExceptionHandler
+Handles specific exceptions within a controller. Allows custom error responses for exceptions.
+
+```java
+@ExceptionHandler(Exception.class)
+public String handleException() {
+return "Error occurred";
+}
+```
+
+@ControllerAdvice
+Provides global exception handling across all controllers. Centralizes error-handling logic.
+
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+}
+```
+
+#### 8. JPA and Database Annotations
+
+| Annotation      | Purpose                           |
+| :-------------- | :-------------------------------- |
+| @Entity         | Marks a class as a JPA entity     |
+| @Table          | Specifies table mapping           |
+| @Id             | Defines primary key               |
+| @GeneratedValue | Auto-generates primary key values |
+| @Column         | Maps class field to table column  |
