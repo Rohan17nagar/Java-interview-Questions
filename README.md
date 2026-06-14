@@ -102,8 +102,9 @@ Strings are immutable (cannot be changed once created) for several design reason
 - **String:** Immutable sequence of characters. Modifications create new objects in memory. Slowest performance under frequent manipulations.
 - **StringBuffer:** Mutable sequence of characters. It is `synchronized` (thread-safe), meaning multiple threads cannot access it simultaneously. Slightly slower than StringBuilder due to synchronization overhead.
 - **StringBuilder:** Mutable sequence of characters. It is `non-synchronized` (not thread-safe). It provides faster performance than StringBuffer and is preferred for single-threaded operations.
-
-<img src="src/images/string_constant_pool.png" name="scp" alt="hello" width="300"/>
+<div style="text-align: center;">
+<img src="src/images/string_constant_pool.png" name="scp" alt="hello" width="500"/>
+</div>
 
 ---
 
