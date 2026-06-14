@@ -8,15 +8,27 @@ This document serves as a comprehensive guide for Java Spring Boot interview pre
 
 ## Table of Contents
 
-| Sr. No. | Questions                                                                                                                                                |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1       | [What is JVM, JRE, and JDK?](#1-what-is-jvm-jre-and-jdk)                                                                                                 |
-| 2       | [What are the main features of Java?](#2-what-are-the-main-features-of-java)                                                                             |
-| 3       | [Why is Java not a pure object-oriented language?](#3-why-is-java-not-a-pure-object-oriented-language)                                                   |
-| 4       | [What is a classloader and what are its types?](#4-what-is-a-classloader-and-what-are-its-types)                                                         |
-| 5       | [What is the difference between an Instance variable and a Local variable?](#5-what-is-the-difference-between-an-instance-variable-and-a-local-variable) |
-| 6       | [What are memory allocations available in Java?](#6-what-are-memory-allocations-available-in-java)                                                       |
-| 7       | [Why are Java Strings immutable?](#7-why-are-java-strings-immutable)                                                                                     |
+| Sr. No. | Questions                                                                                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | [What is Spring Boot?](#1-what-is-spring-boot)                                                                                                                                          |
+| 2       | [What are the Features of Spring Boot?](#2-what-are-the-features-of-spring-boot)                                                                                                        |
+| 3       | [What are the advantages of using Spring Boot?](#3-what-are-the-advantages-of-using-spring-boot)                                                                                        |
+| 4       | [Define the Key Components of Spring Boot](#4-define-the-key-components-of-spring-boot)                                                                                                 |
+| 5       | [Why do we prefer Spring Boot over Spring?](#5-why-do-we-prefer-spring-boot-over-spring)                                                                                                |
+| 6       | [Explain the internal working of Spring Boot](#6-explain-the-internal-working-of-spring-boot)                                                                                           |
+| 7       | [What are the Spring Boot Starter Dependencies?](#7-what-are-the-spring-boot-starter-dependencies)                                                                                      |
+| 8       | [What are the basic Spring Boot Annotations?](#8-what-are-the-basic-spring-boot-annotations)                                                                                            |
+| 9       | [What is Spring Boot dependency management?](#9-what-is-spring-boot-dependency-management)                                                                                              |
+| 10      | [Is it possible to change the port of the embedded Tomcat server in Spring Boot?](#10-is-it-possible-to-change-the-port-of-the-embedded-tomcat-server-in-spring-boot)                   |
+| 11      | [What is the starter dependency of the Spring boot module?](#11-what-is-the-starter-dependency-of-the-spring-boot-module)                                                               |
+| 12      | [How to disable a specific auto-configuration class?](#12-how-to-disable-a-specific-auto-configuration-class)                                                                           |
+| 13      | [Describe the flow of HTTPS requests through the Spring Boot application](#13-describe-the-flow-of-https-requests-through-the-spring-boot-application)                                  |
+| 14      | [Explain @RestController annotation in Spring Boot](#14-explain-restcontroller-annotation-in-spring-boot)                                                                               |
+| 15      | [What are Profiles in Spring?](#15-what-are-profiles-in-spring)                                                                                                                         |
+| 16      | [What is Spring Boot Actuator?](#16-what-is-spring-boot-actuator)                                                                                                                       |
+| 17      | [What is dependency Injection and its types?](#17-what-is-dependency-injection-and-its-types)                                                                                           |
+| 18      | [What is an IOC container?](#18-what-is-an-ioc-container)                                                                                                                               |
+| 19      | [How is Hibernate chosen as the default implementation for JPA without any configuration?](#19-how-is-hibernate-chosen-as-the-default-implementation-for-jpa-without-any-configuration) |
 
 ### 1. What is Spring Boot?
 
@@ -746,3 +758,4 @@ public class AnnotationContextExample {
 ## 15. How is Hibernate chosen as the default implementation for JPA without any configuration?
 
 Spring Boot automatically configures Hibernate as the default JPA implementation when we add the spring-boot-starter-data-jpa dependency to our project. This dependency includes the Hibernate JAR file as well as the Spring Boot auto-configuration for JPA.
+

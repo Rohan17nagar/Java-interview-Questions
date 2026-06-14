@@ -2063,3 +2063,641 @@ public class CentralBankingSystem {
 **Think of synchronization like the access control mechanics of Private Security Vault Rooms inside a World Bank HQ:** Instance-Level Synchronization is like locking an individual Safe Deposit Locker: Customer Alice and Customer Bob both own independent deposit lockers at the branch _(two distinct object instances)_. Alice goes into the vault room to modify her locker, and she snaps a padlock on her box while counting her cash (Instance Lock). Bob can walk right past her and open his own locker simultaneously without waiting, because their resources are distinct. However, if Alice's business partner tries to open Alice's exact box at the same time, they will find it locked and must wait for her to finish.
 
 **Class-Level Synchronization is like locking the Main Branch Front Gate:** At midnight, the regional corporate office orders a security update to the central computer server core that controls all lockers in the building. The security guard steps to the main entrance of the building and locks the front revolving doors `(CentralBankingSystem.class)`. Now, it doesn't matter which locker a customer wants to access, or how many individual keys they hold—the entire facility is halted for everyone across the board until the global update completes.
+
+### 41. What are functional interfaces in Java?
+
+A functional interface is an interface that contains exactly one abstract method. They are the foundation for lambda expressions in Java 8.
+
+**Key Characteristics:**
+
+- Has exactly one abstract method
+- Can have multiple default and static methods
+- Can be annotated with @FunctionalInterface
+- Used as target types for lambda expressions
+
+```java
+@FunctionalInterface
+interface Calculator {
+    int calculate(int a, int b);
+
+    // Default method - allowed
+    default void print(String msg) {
+        System.out.println(msg);
+    }
+
+    // Static method - allowed
+    static void info() {
+        System.out.println("Calculator interface");
+    }
+}
+
+public class FunctionalInterfaceDemo {
+    public static void main(String[] args) {
+        // Using lambda expression
+        Calculator add = (a, b) -> a + b;
+        Calculator multiply = (a, b) -> a * b;
+
+        System.out.println("Sum: " + add.calculate(5, 3));      // 8
+        System.out.println("Product: " + multiply.calculate(5, 3)); // 15
+    }
+}
+```
+
+**Built in functional interfaces:**
+
+```java
+import java.util.function.*;
+
+public class BuiltInFunctionalInterfaces {
+    public static void main(String[] args) {
+        // Predicate - takes input, returns boolean
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        System.out.println(isEven.test(4)); // true
+
+        // Function - takes input, returns output
+        Function<String, Integer> length = s -> s.length();
+        System.out.println(length.apply("Hello")); // 5
+
+        // Consumer - takes input, returns nothing
+        Consumer<String> printer = s -> System.out.println(s);
+        printer.accept("Hello"); // prints Hello
+
+        // Supplier - takes nothing, returns output
+        Supplier<Double> random = () -> Math.random();
+        System.out.println(random.get()); // random number
+
+        // BiFunction - takes two inputs, returns output
+        BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+        System.out.println(add.apply(5, 3)); // 8
+
+        // UnaryOperator - takes input, returns same type
+        UnaryOperator<Integer> square = n -> n * n;
+        System.out.println(square.apply(5)); // 25
+
+        // BinaryOperator - takes two inputs of same type, returns same type
+        BinaryOperator<Integer> max = (a, b) -> a > b ? a : b;
+        System.out.println(max.apply(5, 3)); // 5
+    }
+}
+```
+
+### 42. What are lambda expressions in Java?
+
+Lambda expressions are anonymous functions that provide a concise way to implement functional interfaces. Introduced in Java 8, they enable functional programming in Java.
+
+**Syntax:**
+
+    (parameters) -> expression
+    (parameters) -> { statements; }
+
+```java
+import java.util.*;
+import java.util.function.*;
+
+public class LambdaExamples {
+    public static void main(String[] args) {
+        // No parameters
+        Runnable runnable = () -> System.out.println("Hello Lambda!");
+        runnable.run();
+
+        // One parameter (parentheses optional)
+        Consumer<String> consumer = s -> System.out.println(s);
+        consumer.accept("Hello");
+
+        // Multiple parameters
+        BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+        System.out.println(add.apply(5, 3));
+
+        // With type declarations
+        BiFunction<Integer, Integer, Integer> multiply =
+            (Integer a, Integer b) -> a * b;
+
+        // Multiple statements (braces required)
+        BiFunction<Integer, Integer, Integer> calculate = (a, b) -> {
+            int sum = a + b;
+            int product = a * b;
+            return sum + product;
+        };
+
+        // With Collections
+        List<String> names = Arrays.asList("John", "Jane", "Bob", "Alice");
+
+        // forEach with lambda
+        names.forEach(name -> System.out.println(name));
+
+        // Method reference (shorthand for lambda)
+        names.forEach(System.out::println);
+
+        // Sorting with lambda
+        names.sort((s1, s2) -> s1.compareTo(s2));
+
+        // Using Comparator method reference
+        names.sort(String::compareTo);
+
+        // Filtering with streams
+        List<String> filtered = names.stream()
+            .filter(name -> name.startsWith("J"))
+            .collect(Collectors.toList());
+
+        // Mapping with streams
+        List<Integer> lengths = names.stream()
+            .map(name -> name.length())
+            .collect(Collectors.toList());
+    }
+}
+```
+
+**Method References:**
+
+```java
+// Static method reference
+Function<String, Integer> parseInt = Integer::parseInt;
+
+// Instance method reference
+String str = "Hello";
+Supplier<Integer> length = str::length;
+
+// Constructor reference
+Supplier<ArrayList<String>> listSupplier = ArrayList::new;
+```
+
+**Benefits:**
+
+- Concise and readable code
+- Enables functional programming
+- Better support for parallel processing
+- Reduced boilerplate code
+
+### 43. What is Optional class in Java 8?
+
+The Optional class is a container object that may or may not contain a non-null value. It helps avoid NullPointerException and makes null handling more explicit.
+
+**Creating Optional:**
+
+```java
+import java.util.Optional;
+
+public class OptionalDemo {
+    public static void main(String[] args) {
+        // Creating Optional
+        Optional<String> empty = Optional.empty();
+        Optional<String> name = Optional.of("John");
+        Optional<String> nullable = Optional.ofNullable(null);
+
+        // Checking if value present
+        System.out.println(name.isPresent());     // true
+        System.out.println(empty.isPresent());    // false
+        System.out.println(empty.isEmpty());      // true (Java 11+)
+
+        // Getting value
+        String value = name.get();  // Returns "John"
+        // String error = empty.get(); // Throws NoSuchElementException
+
+        // Safe access with orElse
+        String defaultName = empty.orElse("Unknown");  // "Unknown"
+
+        // orElseGet - lazy evaluation
+        String lazyDefault = empty.orElseGet(() -> computeDefault());
+
+        // orElseThrow
+        String required = name.orElseThrow(() ->
+            new IllegalArgumentException("Name is required"));
+
+        // ifPresent - execute if value exists
+        name.ifPresent(n -> System.out.println("Name: " + n));
+
+        // ifPresentOrElse (Java 9+)
+        name.ifPresentOrElse(
+            n -> System.out.println("Found: " + n),
+            () -> System.out.println("Not found")
+        );
+    }
+
+    static String computeDefault() {
+        return "Computed Default";
+    }
+}
+```
+
+**Optional with Streams:**
+
+```java
+public class OptionalStreams {
+    public static void main(String[] args) {
+        Optional<String> name = Optional.of("  John  ");
+
+        // map - transform value
+        Optional<Integer> length = name.map(String::length);
+
+        // Chaining operations
+        String result = name
+            .map(String::trim)
+            .map(String::toUpperCase)
+            .orElse("UNKNOWN");
+        System.out.println(result);  // "JOHN"
+
+        // filter - conditional
+        Optional<String> filtered = name
+            .filter(n -> n.trim().length() > 3);
+
+        // flatMap - for nested Optionals
+        Optional<Optional<String>> nested = Optional.of(Optional.of("Hello"));
+        Optional<String> flat = nested.flatMap(o -> o);
+    }
+}
+```
+
+**Best Practices**
+
+```java
+class UserService {
+    // Return Optional for methods that may not find a result
+    public Optional<User> findById(int id) {
+        User user = database.find(id);
+        return Optional.ofNullable(user);
+    }
+
+    // Don't use Optional for fields or parameters
+    // Bad: private Optional<String> name;
+    // Good: private String name; // can be null
+
+    // Don't use Optional.get() without checking
+    // Bad: optional.get()
+    // Good: optional.orElse(default) or optional.ifPresent(...)
+}
+```
+
+### 44. Collection vs Collections:
+
+| Collection                           | Collections                            |
+| :----------------------------------- | :------------------------------------- |
+| Interface                            | Utility class                          |
+| Used to represent a group of objects | Provides static methods for operations |
+| Can be implemented                   | Cannot be instantiated                 |
+| Root of Collection hierarchy         | Helper class for Collection operations |
+
+### 45. What are design patterns in Java?
+
+Design patterns are reusable solutions to common problems in software design. They represent best practices and provide templates for solving design challenges.
+
+### Categories of Design Patterns:
+
+#### 1. Creational Patterns
+
+_Deal with object creation mechanisms._
+
+- **Singleton**
+- **Factory Method**
+- **Abstract Factory**
+- **Builder**
+- **Prototype**
+
+#### 2. Structural Patterns
+
+_Deal with object composition._
+
+- **Adapter**
+- **Bridge**
+- **Composite**
+- **Decorator**
+- **Facade**
+- **Flyweight**
+- **Proxy**
+
+#### 3. Behavioral Patterns
+
+_Deal with object interaction._
+
+- **Chain of Responsibility**
+- **Command**
+- **Iterator**
+- **Mediator**
+- **Memento**
+- **Observer**
+- **State**
+- **Strategy**
+- **Template Method**
+- **Visitor**
+
+### Common Design Patterns Examples:
+
+```java
+// 1. SINGLETON - Only one instance
+public class Singleton {
+    private static Singleton instance;
+    private Singleton() {}
+    public static synchronized Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+}
+
+// 2. FACTORY - Creates objects without exposing creation logic
+interface Animal {
+    void speak();
+}
+class Dog implements Animal {
+    public void speak() { System.out.println("Woof!"); }
+}
+class Cat implements Animal {
+    public void speak() { System.out.println("Meow!"); }
+}
+class AnimalFactory {
+    public static Animal createAnimal(String type) {
+        return switch (type.toLowerCase()) {
+            case "dog" -> new Dog();
+            case "cat" -> new Cat();
+            default -> throw new IllegalArgumentException("Unknown animal");
+        };
+    }
+}
+
+// 3. OBSERVER - One-to-many dependency
+interface Observer {
+    void update(String message);
+}
+class NewsSubscriber implements Observer {
+    private String name;
+    public NewsSubscriber(String name) { this.name = name; }
+    public void update(String message) {
+        System.out.println(name + " received: " + message);
+    }
+}
+
+// 4. STRATEGY - Family of interchangeable algorithms
+interface PaymentStrategy {
+    void pay(int amount);
+}
+class CreditCardPayment implements PaymentStrategy {
+    public void pay(int amount) {
+        System.out.println("Paid $" + amount + " with Credit Card");
+    }
+}
+class PayPalPayment implements PaymentStrategy {
+    public void pay(int amount) {
+        System.out.println("Paid $" + amount + " with PayPal");
+    }
+}
+
+// 5. DECORATOR - Add behavior dynamically
+interface Coffee {
+    double getCost();
+    String getDescription();
+}
+class SimpleCoffee implements Coffee {
+    public double getCost() { return 2.0; }
+    public String getDescription() { return "Simple Coffee"; }
+}
+class MilkDecorator implements Coffee {
+    private Coffee coffee;
+    public MilkDecorator(Coffee coffee) { this.coffee = coffee; }
+    public double getCost() { return coffee.getCost() + 0.5; }
+    public String getDescription() { return coffee.getDescription() + ", Milk"; }
+}
+```
+
+### 46. What is the difference between Heap and Stack memory?
+
+Java memory is divided into two main areas: Heap and Stack. Understanding their differences is crucial for memory management.
+
+| Stack Memory                                | Heap Memory                               |
+| :------------------------------------------ | :---------------------------------------- |
+| Stores method calls and local variables     | Stores objects and instance variables     |
+| LIFO (Last In First Out) structure          | No specific order                         |
+| Thread-safe (each thread has own stack)     | Shared among all threads                  |
+| Memory allocation/deallocation is automatic | Managed by Garbage Collector              |
+| Fixed size (can cause StackOverflowError)   | Dynamic size (can cause OutOfMemoryError) |
+| Faster access                               | Slower access                             |
+| Stores primitive values and references      | Stores actual objects                     |
+
+```java
+public class MemoryExample {
+    // Instance variable - stored in Heap
+    private int instanceVar = 10;
+
+    // Static variable - stored in Method Area (part of Heap in modern JVMs)
+    private static int staticVar = 20;
+
+    public void demonstrate() {
+        // Local primitive - stored in Stack
+        int localPrimitive = 30;
+
+        // Local reference - reference in Stack, object in Heap
+        String localString = new String("Hello");
+
+        // Object created in Heap
+        Person person = new Person("John", 25);
+
+        // Array - reference in Stack, array object in Heap
+        int[] numbers = new int[5];
+    }
+
+    public static void main(String[] args) {
+        // Reference 'obj' in Stack, object in Heap
+        MemoryExample obj = new MemoryExample();
+        obj.demonstrate();
+
+        // Recursive call can cause StackOverflowError
+        // recursiveMethod(); // Uncomment to see StackOverflowError
+    }
+
+    public static void recursiveMethod() {
+        recursiveMethod(); // Infinite recursion - StackOverflowError
+    }
+}
+
+class Person {
+    String name;  // Reference in Heap, String object in Heap
+    int age;      // Primitive stored in Heap (as part of object)
+
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+```
+
+```java
+STACK                          HEAP
+┌─────────────────┐            ┌─────────────────────────────────┐
+│ main() frame    │            │                                 │
+│  obj (reference)│──────────► │  MemoryExample object           │
+│                 │            │    instanceVar = 10             │
+├─────────────────┤            │                                 │
+│ demonstrate()   │            ├─────────────────────────────────┤
+│  localPrimitive │            │                                 │
+│  = 30           │            │  String object "Hello"          │
+│  localString ───│──────────► │                                 │
+│  person ────────│──────────► │  Person object                  │
+│  numbers ───────│──────────► │    name (ref) ──► "John"        │
+└─────────────────┘            │    age = 25                     │
+                               │                                 │
+                               │  int[5] array                   │
+                               └─────────────────────────────────┘
+```
+
+### 47. What is the difference between wait() and sleep() methods?
+
+Both wait() and sleep() are used to pause thread execution, but they have significant differences:
+
+| wait()                                   | sleep()                               |
+| :--------------------------------------- | :------------------------------------ |
+| Defined in Object class                  | Defined in Thread class               |
+| Releases the lock/monitor                | Does not release the lock             |
+| Must be called from synchronized context | Can be called from anywhere           |
+| Can be woken up by notify()/notifyAll()  | Cannot be woken up (except interrupt) |
+| Used for inter-thread communication      | Used for introducing delay            |
+| Instance method                          | Static method                         |
+
+```java
+public class WaitVsSleep {
+    private static final Object lock = new Object();
+
+    public static void main(String[] args) {
+        // Demonstrating sleep()
+        Thread sleepThread = new Thread(() -> {
+            System.out.println("Sleep thread starting...");
+            try {
+                Thread.sleep(2000);  // Sleeps for 2 seconds
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Sleep thread woke up!");
+        });
+
+        // Demonstrating wait()
+        Thread waitThread = new Thread(() -> {
+            synchronized (lock) {
+                System.out.println("Wait thread starting...");
+                try {
+                    lock.wait(2000);  // Waits for 2 seconds or until notified
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Wait thread woke up!");
+            }
+        });
+
+        // Notify thread
+        Thread notifyThread = new Thread(() -> {
+            try {
+                Thread.sleep(1000);  // Wait 1 second
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (lock) {
+                System.out.println("Notifying...");
+                lock.notify();  // Wakes up the waiting thread
+            }
+        });
+
+        sleepThread.start();
+        waitThread.start();
+        notifyThread.start();
+    }
+}
+```
+
+**Key Points:**
+
+- wait() is used for coordination between threads
+- sleep() is used to pause execution for a specific time
+- Always call wait() inside a synchronized block
+- wait() can be interrupted by notify() before timeout
+
+### 48. What is an immutable class and how to create one?
+
+# Immutable Class in Java
+
+An immutable class is a class whose instances cannot be modified after creation. Once an object is created, its state remains constant throughout its lifetime.
+
+### Benefits of Immutability:
+
+- **Thread-safe** without synchronization
+- Can be safely **shared and cached**
+- Good for **hash keys** (hashCode never changes)
+- **Easier to reason** about
+
+### Rules for Creating Immutable Class:
+
+1. Declare the class as **final**
+2. Make all fields **private and final**
+3. Don't provide **setter methods**
+4. Initialize all fields via **constructor**
+5. Perform **deep copy** for mutable objects
+6. Return **copies of mutable objects** in getters
+
+```java
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+// Immutable class example
+public final class ImmutablePerson {
+    private final String name;
+    private final int age;
+    private final List<String> hobbies;
+
+    public ImmutablePerson(String name, int age, List<String> hobbies) {
+        this.name = name;
+        this.age = age;
+        // Deep copy of mutable object
+        this.hobbies = new ArrayList<>(hobbies);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    // Return unmodifiable copy to prevent modification
+    public List<String> getHobbies() {
+        return Collections.unmodifiableList(hobbies);
+    }
+
+    // Method that appears to modify but returns new instance
+    public ImmutablePerson withAge(int newAge) {
+        return new ImmutablePerson(this.name, newAge, this.hobbies);
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutablePerson{name='" + name + "', age=" + age +
+               ", hobbies=" + hobbies + "}";
+    }
+}
+
+// Usage
+class ImmutableDemo {
+    public static void main(String[] args) {
+        List<String> hobbies = new ArrayList<>();
+        hobbies.add("Reading");
+        hobbies.add("Gaming");
+
+        ImmutablePerson person = new ImmutablePerson("John", 25, hobbies);
+        System.out.println("Original: " + person);
+
+        // Original list modification doesn't affect the object
+        hobbies.add("Cooking");
+        System.out.println("After modifying original list: " + person);
+
+        // Cannot modify returned list
+        // person.getHobbies().add("Swimming"); // Throws UnsupportedOperationException
+
+        // Create new instance with different age
+        ImmutablePerson olderPerson = person.withAge(30);
+        System.out.println("New person: " + olderPerson);
+        System.out.println("Original unchanged: " + person);
+    }
+}
+
+// Records are immutable by default
+public record Person(String name, int age) {
+    // Automatically generates constructor, getters, equals, hashCode, toString
+}
+```
