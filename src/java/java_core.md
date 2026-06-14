@@ -763,7 +763,7 @@ Collections.sort(bankAccounts, (b1, b2) -> Double.compare(b1.getBalance(), b2.ge
 bankAccounts.sort(Comparator.comparingDouble(BankAccount::getBalance).reversed());
 ```
 
-### 18. What is an Inner Class in Java?
+### 17. What is an Inner Class in Java?
 
 #### **1. Definitions**
 
@@ -881,7 +881,7 @@ class TransactionProcessor {
 }
 ```
 
-### 19. What is Method Overloading and Method Overriding?
+### 18. What is Method Overloading and Method Overriding?
 
 #### **1. Definitions**
 
