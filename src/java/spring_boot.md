@@ -379,3 +379,370 @@ public class GlobalExceptionHandler {
 | @Id             | Defines primary key               |
 | @GeneratedValue | Auto-generates primary key values |
 | @Column         | Maps class field to table column  |
+
+### 9. What is Spring Boot dependency management?
+
+Spring Boot dependency management makes it easier to manage dependencies in a Spring Boot project. It makes sure that all necessary dependencies are appropriate for the current Spring Boot version and are compatible with it.
+
+> To create a web application, we can add the S pring Boot starter web dependency to our application.
+
+#### **Life cycle of dependency management:**
+
+<img src="../images/di1.png" width="500px"/>
+Spring Boot Dependency Management is a feature that simplifies the process of managing project dependencies and their versions. Instead of manually specifying compatible versions for every library, Spring Boot provides predefined dependency configurations through its starter packages and dependency management mechanism.
+
+- Manages all project dependencies from a central location.
+- Automatically handles compatible dependency versions.
+- Reduces version conflicts between libraries.
+
+#### **Working of Dependency Management in Spring-Boot**
+
+- Dependency is nothing but a 'Library' that provides specific functionality that we can use in our application.
+- In Spring-Boot, Dependency Management and Auto-Configuration work simultaneously.
+- It is the auto-configuration that makes managing dependencies supremely easy for us.
+- We have to add the dependencies in the pom.xml/build.gradle file.
+- These added dependencies will then get downloaded from Maven Central.
+- The downloaded dependencies will get stored into the '.m2' folder in the local file system.
+- The Spring-Boot application can access these dependencies from '.m2' and its sub-directories.
+- Example -( .m2 -> repository -> org, etc )
+
+#### **Project Build Systems**
+
+- Spring Boot supports two main build system Maven and Gradle.
+- **Maven:** Dependencies are managed in the pom.xml file.
+- **Gradle:** Dependencies are managed in the build.gradle file.
+- Maven and Gradle use a different syntax for managing dependencies.
+- Also, we don't need to mention the version of the dependencies, as Spring-Boot configures them automatically. Though we can mention the version or override as well.
+- The curated list published contains all the Spring Modules and third-party libraries that you can use with Spring-Boot.
+
+#### **Spring-Boot Starters**
+
+Spring Boot Starters are a set of convenient dependency descriptors provided by Spring Boot that simplify the setup of your application by grouping commonly used libraries and configurations into a single, reusable module.
+
+> Example: 'spring-boot-starter-jdbc'
+
+#### **Types of Starters**
+
+1. Application Starters
+2. Technical Starters
+3. Production-Ready Starters
+
+#### **Adding Dependencies in Spring Boot**
+
+1. Using Maven (pom.xml)
+2. Using Gradle - 'spring-boot-gradle-plugin'
+
+## 10. Is it possible to change the port of the embedded Tomcat server in Spring Boot?
+
+The default port of Spring boot Tomcat embedded server is : 8080
+Yes, it is possible to change the port of the embedded Tomcat server in a Spring Boot application.
+
+> server.port=8081
+
+## 11. What is the starter dependency of the Spring boot module?
+
+Spring Boot Starters are a collection of pre-configured maven dependencies that makes it easier to develop particular types of applications. These starters include,
+
+- Dependencies
+- Version control
+- Configuration needed to make certain features.
+
+To use a Spring Boot starter dependency , we simply need to add it to our project's pom.xml file. For example, to add the Spring Boot starter web dependency, add the following dependency to the pom.xml file:
+
+```xml
+<dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+## 12. How to disable a specific auto-configuration class?
+
+To disable a specific auto-configuration class in a Spring Boot application, we can use the @EnableAutoConfiguration annotation with the " exclude" attribute.
+
+> @EnableAutoConfiguration(exclude = {//classname})
+
+## 13. Describe the flow of HTTPS requests through the Spring Boot application.
+
+The flow of HTTPS requests through a Spring Boot application is as follows:
+
+<img src="../images/api_flow.png" width="500px"/>
+
+- First client makes an HTTP request ( GET, POST, PUT, DELETE ) to the browser.
+- After that the request will go to the controller, where all the requests will be mapped and handled.
+- After this in Service layer, all the **business logic** will be performed. It performs the business logic on the data that is mapped to **JPA (Java Persistence API)** using model classes.
+- In repository layer, all the **CRUD** operations are being done for the REST APIs .
+- A JSP page is returned to the end users if no errors are there.
+
+## 14. Explain @RestController annotation in Spring Boot.
+
+**@RestController** annotation is like a shortcut to building RESTful services. It combines two annotations:
+
+**@Controller :** Marks the class as a request handler in the Spring MVC framework.
+@ResponseBody : Tells Spring to convert method return values (objects, data) directly into HTTP responses instead of rendering views.
+It enables us to Define endpoints for different HTTP methods **(GET, POST, PUT, DELETE)**, return data in various formats (JSON, XML, etc.) and map the request parameters to method arguments.
+
+### Controller vs RestController
+
+| Features                         | @Controller                                                             | @RestController                                                 |
+| :------------------------------- | :---------------------------------------------------------------------- | :-------------------------------------------------------------- |
+| **Usage**                        | It marks a class as a controller class.                                 | It combines two annotations i.e. @Controller and @ResponseBody. |
+| **Application**                  | Used for Web applications.                                              | Used for RESTful APIs.                                          |
+| **Request handling and Mapping** | Used with @RequestMapping annotation to map HTTP requests with methods. | Used to handle requests like GET, PUT, POST, and DELETE.        |
+
+> Note: Both annotations handle requests, but @RestController prioritizes data responses for building API.
+
+### RequestMapping vs GetMapping
+
+| Features        | @RequestMapping                                                 | @GetMapping                             |
+| :-------------- | :-------------------------------------------------------------- | :-------------------------------------- |
+| **Annotations** | @RequestMapping                                                 | @GetMapping                             |
+| **Purpose**     | Handles various types of HTTP requests (GET, POST, etc.)        | Specifically handles HTTP GET requests. |
+| **Example**     | @RequestMapping(value = "/example", method = RequestMethod.GET) | @GetMapping("/example")                 |
+
+## 15. What are Profiles in Spring?
+
+**Spring Profiles** are like different scenarios for the application depending on the environment.
+
+- You define sets of configurations (like database URLs) for different situations (development, testing, production).
+- Use the @Profile annotation to clarify which config belongs to where.
+- Activate profiles with environment variables or command-line options.
+
+To use Spring Profiles, we simply need to define the spring.profiles.active property to specify which profile we want to use.
+
+## 16. What is Spring Boot Actuator?
+
+Spring Boot Actuator is a component of the Spring Boot framework that provides production-ready operational monitoring and management capabilities. We can manage and monitor your Spring Boot application while it is running.
+
+> Note: To use Spring Boot Actuator, we simply need to add the spring-boot-starter-actuator dependency to our project.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+</dependencies>
+```
+
+#### Configuring Actuator in application.properties
+
+Actuator provides several configuration options to customize its behavior. Below are some common configurations:
+
+- We can also change the default endpoint by adding the following in the application.properties file.
+  > management.endpoints.web.base-path=/details
+- Including IDs/Endpoints
+  By default, all IDs are set to false except for 'health'. To include an ID, use the following property in the application.properties file.
+
+      > Example -> management.endpoint.metrics.enabled=true
+
+- List down all IDs that we want to include which are separated by a comma.
+  > management.endpoints.web.exposure.include=metrics,info
+- Include only metrics and info IDs and will exclude all others ('health' too).
+  > management.endpoints.web.exposure.include=\*
+- Excluding IDs/Endpoints
+
+  > Example -> management.endpoints.web.exposure.exclude=info
+
+  #### /actuator endpoint
+
+  It's simple just hit the default endpoint '/actuator', ensure that your Application is running.
+
+  #### /actuator/health
+
+  We can click on these above links and see the respective information. Additionally, we can activate other Actuator IDs and use them after '/actuator' to see more information. For example, 'health' ID is activated by default. Therefore we can click the link in the image or directly use 'http://localhost:8080/actuator/health'.
+
+## 17. What is dependency Injection and its types?
+
+Dependency Injection (DI) is a design pattern that enables us to produce loosely coupled components. In DI, an object's ability to complete a task depends on another object. There three types of dependency Injections.
+
+- Constructor injection: This is the most common type of DI in Spring Boot. In constructor injection, the dependency object is injected into the dependent object's constructor.
+- Setter injection: In setter injection, the dependency object is injected into the dependent object's setter method.
+- Field injection : In field injection, the dependency object is injected into the dependent object's field.
+
+Spring Dependency Injection (DI) is a fundamental concept in the Spring Framework that allows objects to receive their dependencies from an external source rather than creating them internally.
+
+- Eliminates the need for classes to create their own dependencies
+- Makes code more reusable and modular
+- Supports constructor, setter, and field injection
+- Works with XML configuration, annotations, or Java-based configuration.
+
+<img src="../images/di.png" width="500px"/>
+
+In above Diagram:
+
+- The IoC (Inversion of Control) Container is responsible for creating and managing objects (called Beans).
+- Bean 1 and Bean 2 are created by the container instead of being manually instantiated.
+- If Bean 1 depends on Bean 2, the container automatically injects Bean 2 into Bean 1 (this is Dependency Injection).
+- The configuration for this process is defined using XML or Java Annotations.
+
+#### 1. Setter Dependency Injection:
+
+Setter DI involves injecting dependencies via setter methods. To configure SDI, the @Autowiredannotation is used along with setter methods and the property is set through the `property` tag in the bean configuration file.
+
+```java
+package com.geeksforgeeks.org;
+
+import com.geeksforgeeks.org.IGeek;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class GFG {
+
+    // The object of the interface IGeek
+    private IGeek geek;
+
+    // Setter method for property geek with @Autowired annotation
+    @Autowired
+    public void setGeek(IGeek geek) {
+        this.geek = geek;
+    }
+}
+```
+
+Bean configuration:
+
+```xml
+<beans
+xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="GFG" class="com.geeksforgeeks.org.GFG">
+        <property name="geek"  ref ="CsvGFG" />
+    </bean>
+
+<bean id="CsvGFG" class="com.geeksforgeeks.org.impl.CsvGFG" />
+<bean id="JsonGFG" class="com.geeksforgeeks.org.impl.JsonGFG" />
+
+</beans>
+```
+
+#### 2. Constructor Dependency Injection (CDI):
+
+Constructor DI involves injecting dependencies through constructors. To configure CDI, the `<constructor-arg>` tag is used in the bean configuration file.
+
+```java
+package com.geeksforgeeks.org;
+
+import com.geeksforgeeks.org.IGeek;
+
+public class GFG {
+
+    // The object of the interface IGeek
+    private IGeek geek;
+
+    // Constructor to set the CDI
+    public GFG(IGeek geek) {
+        this.geek = geek;
+    }
+}
+```
+
+| Setter DI                                                                    | Constructor DI                                                                   |
+| :--------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| Creates mutable objects. Dependencies can be modified after creation.        | Creates immutable objects. Dependencies can't be modified after creation.        |
+| Dependencies can be injected later.                                          | All dependencies must be provided at creation.                                   |
+| Requires addition of @Autowired annotation.                                  | @Autowired annotation is not needed.                                             |
+| It results in circular dependencies or partial dependencies.                 | It too can have circular dependencies, it just fails faster and more explicitly. |
+| Requires framework or manual setter calls for dependency injection in tests. | Easier unit testing - can create objects directly with mock dependencies.        |
+
+## 18. What is an IOC container?
+
+An IoC (Inversion of Control) Container in Spring Boot is essentially a central manager for the application objects that controls the creation, configuration, and management of dependency injection of objects (often referred to as beans), also referred to as a DI (Dependency Injection) container.
+
+The Spring Inversion of Control (IoC) container is a core component of the Spring Framework, streamlining object creation and management. It promotes flexibility and maintainability by managing dependencies and configurations automatically, allowing developers to concentrate on core business logic.
+
+- Configuration Metadata: Defines how beans should be created, configured, and wired.
+- Bean Instantiation: The container creates instances of beans as per the configuration.
+- Dependency Injection: Automatically resolves and injects the necessary dependencies into beans.
+- Lifecycle Management: Manages bean initialization, destruction, and scope (singleton, prototype, etc.).
+
+The following diagram illustrates how the IoC container manages the creation of beans and injects their dependencies in a Spring application.
+
+<img src="../images/ioc1.png" width="500px"/>
+
+#### **Types of Spring Containers**
+
+#### 1. BeanFactory Container
+
+    The BeanFactory is the simplest and most lightweight container in Spring. It provides basic features for bean creation and management but lacks advanced functionalities such as event handling and AOP.
+
+    - Suitable for simple applications with minimal configuration.
+    - Beans are created lazily, meaning they are instantiated only when requested.
+    - Typically used for low-memory or resource-constrained environments.
+
+```java
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+
+public class BeanFactoryExample {
+    public static void main(String[] args) {
+        // Load the Spring context (XML configuration)
+        BeanFactory factory = new XmlBeanFactory(new ClassPathResource("beans.xml"));
+
+        // Access the bean from the factory
+        MyBean myBean = (MyBean) factory.getBean("myBean");
+
+        // Use the bean
+        myBean.doSomething();
+    }
+}
+```
+
+> BeanFactory Container does not support annotation-based configuration
+
+#### 2. ApplicationContext Container
+
+The ApplicationContext is a more advanced and feature-rich container compared to BeanFactory. It extends BeanFactory and adds additional features such as event propagation, AOP support, and internationalization.
+
+More commonly used in production applications.
+In the ApplicationContext container, by default, beans are created eagerly during the container initialization process.
+It provides additional services like message resources, event handling, and more.
+
+**Syntax for ApplicationContext Ioc Container**
+
+1. Using XML Configuration
+
+```java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class ApplicationContextExample {
+    public static void main(String[] args) {
+        // Load the Spring context (XML configuration)
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+        // Access the bean from the application context
+        MyBean myBean = (MyBean) context.getBean("myBean");
+
+        // Use the bean
+        myBean.doSomething();
+    }
+}
+```
+
+2. Using AnnotationBasedConfiguration
+
+```java
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class AnnotationContextExample {
+    public static void main(String[] args) {
+        // Load the Spring context using annotations
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        // Access the bean from the application context
+        MyBean myBean = context.getBean(MyBean.class);
+
+        // Use the bean
+        myBean.doSomething();
+    }
+}
+```
+
+## 15. How is Hibernate chosen as the default implementation for JPA without any configuration?
+
+Spring Boot automatically configures Hibernate as the default JPA implementation when we add the spring-boot-starter-data-jpa dependency to our project. This dependency includes the Hibernate JAR file as well as the Spring Boot auto-configuration for JPA.
