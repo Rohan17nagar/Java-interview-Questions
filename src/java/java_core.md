@@ -8,24 +8,35 @@ This document serves as a comprehensive guide for Java interview preparation, co
 
 ## Table of Contents
 
-1. [What is JVM, JRE, and JDK?](#1-what-is-jvm-jre-and-jdk)
-2. [What are the main features of Java?](#2-what-are-the-main-features-of-java)
-3. [What is the difference between OOP and SOP?](#3-what-is-the-difference-between-oop-and-sop)
-4. [Why is Java not a pure object-oriented language?](#4-why-is-java-not-a-pure-object-oriented-language)
-5. [What is a classloader and what are its types?](#5-what-is-a-classloader-and-what-are-its-types)
-6. [What is the difference between an Instance variable and a Local variable?](#6-what-is-the-difference-between-an-instance-variable-and-a-local-variable)
-7. [What are memory allocations available in Java?](#7-what-are-memory-allocations-available-in-java)
-8. [Why are Java Strings immutable?](#8-why-are-java-strings-immutable)
-9. [What is the difference between String, StringBuffer, and StringBuilder?](#9-what-is-the-difference-between-string-stringbuffer-and-stringbuilder)
-10. [What is Garbage Collection in Java and how does it work?](#10-what-is-garbage-collection-in-java-and-how-does-it-work)
-11. [What is Garbage Collection in Java and how does it work?](#11-what-is-garbage-collection-in-java-and-how-does-it-work)
-12. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-13. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-14. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-15. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-16. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-17. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
-18. [What are Checked and Unchecked Exceptions in Java?](#12-what-are-checked-and-unchecked-exceptions-in-java)
+| Sr. No. | Questions                                                                                                                                                |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | [What is JVM, JRE, and JDK?](#1-what-is-jvm-jre-and-jdk)                                                                                                 |
+| 2       | [What are the main features of Java?](#2-what-are-the-main-features-of-java)                                                                             |
+| 3       | [Why is Java not a pure object-oriented language?](#3-why-is-java-not-a-pure-object-oriented-language)                                                   |
+| 4       | [What is a classloader and what are its types?](#4-what-is-a-classloader-and-what-are-its-types)                                                         |
+| 5       | [What is the difference between an Instance variable and a Local variable?](#5-what-is-the-difference-between-an-instance-variable-and-a-local-variable) |
+| 6       | [What are memory allocations available in Java?](#6-what-are-memory-allocations-available-in-java)                                                       |
+| 7       | [Why are Java Strings immutable?](#7-why-are-java-strings-immutable)                                                                                     |
+| 8       | [What is the difference between String, StringBuffer, and StringBuilder?](#8-what-is-the-difference-between-string-stringbuffer-and-stringbuilder)       |
+| 9       | [What is Garbage Collection in Java and how does it work?](#9-what-is-garbage-collection-in-java-and-how-does-it-work)                                   |
+| 10      | [What is the importance of hashCode() and equals() methods?](#10-what-is-the-importance-of-hashcode-and-equals-methods)                                  |
+| 11      | [What are Checked and Unchecked Exceptions in Java?](#11-what-are-checked-and-unchecked-exceptions-in-java)                                              |
+| 12      | [What is the difference between an Abstract Class and an Interface?](#12-what-is-the-difference-between-an-abstract-class-and-an-interface)              |
+| 13      | [What are final, finally, and finalize in Java?](#13-what-are-final-finally-and-finalize-in-java)                                                        |
+| 14      | [What are Marker Interfaces in Java?](#14-what-are-marker-interfaces-in-java)                                                                            |
+| 15      | [What is the Serializable Interface in Java?](#15-what-is-the-serializable-interface-in-java)                                                            |
+| 16      | [What is the Collections Framework in Java?](#16-what-is-the-collections-framework-in-java)                                                              |
+| 17      | [What is the Difference Between the Comparable and Comparator Interfaces?](#17-what-is-the-difference-between-the-comparable-and-comparator-interfaces)  |
+| 18      | [What is an Inner Class in Java?](#18-what-is-an-inner-class-in-java)                                                                                    |
+| 19      | [What is Method Overloading and Method Overriding?](#19-what-is-method-overloading-and-method-overriding)                                                |
+| 20      | [Array vs. ArrayList in Java](#20-array-vs-arraylist-in-java)                                                                                            |
+| 21      | [How ArrayList Works Internally](#21-how-arraylist-works-internally)                                                                                     |
+| 22      | [What is a LinkedList and how does it work?](#22-what-is-a-linkedlist-and-how-does-it-work)                                                              |
+| 23      | [What is the difference between ArrayList and LinkedList?](#23-what-is-the-difference-between-arraylist-and-linkedlist)                                  |
+| 24      | [What is the difference between HashMap, HashSet, TreeMap, and TreeSet?](#24-what-is-the-difference-between-hashmap-hashset-treemap-and-treeset)         |
+| 25      | [What is the difference between HashMap and ConcurrentHashMap?](#25-what-is-the-difference-between-hashmap-and-concurrenthashmap)                        |
+| 26      | [What is Java Reflection API?](#26-what-is-java-reflection-api)                                                                                          |
+| 27      | [If Reflection is risky, why does Java still have it?](#27-if-reflection-is-risky-why-does-java-still-have-it)                                           |
 
 ---
 
@@ -52,13 +63,13 @@ This document serves as a comprehensive guide for Java interview preparation, co
 
 ---
 
-### 4. Why is Java not a pure object-oriented language?
+### 3. Why is Java not a pure object-oriented language?
 
 Java is not considered a pure object-oriented language because it supports **primitive data types** (such as `int`, `char`, `float`, `double`, `boolean`, etc.) which are not objects. In a pure object-oriented language, everything must be an object. While Java provides wrapper classes (`Integer`, `Character`, etc.) and autoboxing, the baseline existence of primitives prevents it from being 100% pure.
 
 ---
 
-### 5. What is a classloader and what are its types?
+### 4. What is a classloader and what are its types?
 
 A **Classloader** is a part of the JRE that dynamically loads Java classes into the JVM during runtime when they are referenced for the first time.
 
@@ -70,14 +81,14 @@ There are three main types of built-in classloaders in Java:
 
 ---
 
-### 6. What is the difference between an Instance variable and a Local variable?
+### 5. What is the difference between an Instance variable and a Local variable?
 
 - **Instance Variable:** Declared inside a class but outside any method, constructor, or block. They are created when an object is instantiated and are accessible to all methods of the class. They take default values if uninitialized.
 - **Local Variable:** Declared inside a method, constructor, or block. They are created when the block is entered and destroyed on exit. They do not have default values and must be initialized before use.
 
 ---
 
-### 7. What are memory allocations available in Java?
+### 6. What are memory allocations available in Java?
 
 Java separates runtime memory primarily into two sectors:
 
@@ -86,7 +97,7 @@ Java separates runtime memory primarily into two sectors:
 
 ---
 
-### 8. Why are Java Strings immutable?
+### 7. Why are Java Strings immutable?
 
 Strings are immutable (cannot be changed once created) for several design reasons:
 
@@ -97,7 +108,7 @@ Strings are immutable (cannot be changed once created) for several design reason
 
 ---
 
-### 9. What is the difference between String, StringBuffer, and StringBuilder?
+### 8. What is the difference between String, StringBuffer, and StringBuilder?
 
 - **String:** Immutable sequence of characters. Modifications create new objects in memory. Slowest performance under frequent manipulations.
 - **StringBuffer:** Mutable sequence of characters. It is `synchronized` (thread-safe), meaning multiple threads cannot access it simultaneously. Slightly slower than StringBuilder due to synchronization overhead.
@@ -109,7 +120,7 @@ Strings are immutable (cannot be changed once created) for several design reason
 
 ---
 
-### 10. What is Garbage Collection in Java and how does it work?
+### 9. What is Garbage Collection in Java and how does it work?
 
 **Garbage Collection (GC)** is an automatic memory management process in Java that tracks allocations and deletes objects that are no longer reachable or referenced by any active part of the program.
 
@@ -117,7 +128,7 @@ Strings are immutable (cannot be changed once created) for several design reason
 - Developers can request garbage collection using `System.gc()`, but execution is never guaranteed immediately.
 - The heap is typically divided into **Young Generation** (Eden, Survivor spaces) where new objects are born, and **Old/Tenured Generation** where long-lived objects are promoted. GC algorithms (like G1, ZGC, or CMS) selectively scan these regions to free memory.
 
-### 11. What is the importance of hashCode() and equals() methods?
+### 10. What is the importance of hashCode() and equals() methods?
 
 - **equals(Object obj)**: A method defined in the Object class used to compare two objects for "meaningful" or logical equality. By default, the Object class implementation uses the == operator, which only checks if both references point to the exact same memory address (shallow equality). Developers override it to compare actual values inside the objects (deep equality).
 
@@ -220,7 +231,7 @@ public class Student {
 }
 ```
 
-### 12. What are Checked and Unchecked Exceptions in Java?
+### 11. What are Checked and Unchecked Exceptions in Java?
 
 #### **1. Definitions**
 
@@ -250,7 +261,7 @@ Imagine your program execution as your daily routine:
 - **Checked Exception (Airport Security):** Before you can board a flight, security checks if you have a documents. You are stopped **before** you start the journey if you aren't prepared. The rules force you to have your documents ready in advance.
 - **Unchecked Exception (Stubbing Your Toe):** While walking to work, you might met with an accident. You don't prepare a medical kit at the door for this specific event because it is an unpredictable accident.
 
-### 13. What is the difference between an Abstract Class and an Interface?
+### 12. What is the difference between an Abstract Class and an Interface?
 
 #### **1. Definitions**
 
@@ -326,7 +337,7 @@ class FlyingCar extends Vehicle implements Flyable {
 }
 ```
 
-### 14. What are final, finally, and finalize in Java?
+### 13. What are final, finally, and finalize in Java?
 
 #### **1. Definitions**
 
@@ -383,7 +394,7 @@ public class BankDemo {
 
 ```
 
-### 15. What are Marker Interfaces in Java?
+### 14. What are Marker Interfaces in Java?
 
 #### **1. Definitions**
 
@@ -441,7 +452,7 @@ public class MarkerDemo {
     }
 }
 
-### 16. What is the Serializable Interface in Java?
+### 15. What is the Serializable Interface in Java?
 
 #### **1. Definitions**
 * **Serialization:** The process of converting the state of a live Java object into a linear stream of bytes (a raw binary format). This stream of bytes can then be saved into a local file, stored inside a database vault, or sent across a network to another machine.
@@ -562,7 +573,7 @@ class SecureCustomerProfile implements Serializable {
 }
 ```
 
-### 17. What is the Collections Framework in Java?
+### 16. What is the Collections Framework in Java?
 
 #### **1. Definitions**
 
@@ -629,7 +640,7 @@ public class CollectionsDemo {
 <img src="../images/java_collections.png" name="scp" alt="collections_java" width="500"/>
 <!-- </div> -->
 
-### 18. What is the Difference Between the Comparable and Comparator Interfaces?
+### 16. What is the Difference Between the Comparable and Comparator Interfaces?
 
 #### **1. Definitions**
 
@@ -752,7 +763,7 @@ Collections.sort(bankAccounts, (b1, b2) -> Double.compare(b1.getBalance(), b2.ge
 bankAccounts.sort(Comparator.comparingDouble(BankAccount::getBalance).reversed());
 ```
 
-### 19. What is an Inner Class in Java?
+### 18. What is an Inner Class in Java?
 
 #### **1. Definitions**
 
@@ -870,7 +881,7 @@ class TransactionProcessor {
 }
 ```
 
-### 20. What is Method Overloading and Method Overriding?
+### 19. What is Method Overloading and Method Overriding?
 
 #### **1. Definitions**
 
@@ -921,7 +932,7 @@ class CorporateVipCounter extends BankCounter {
 }
 ```
 
-### 21. Array vs. ArrayList in Java
+### 20. Array vs. ArrayList in Java
 
 #### **1. Definitions**
 
@@ -978,7 +989,7 @@ class ArrayVsArrayListDemo {
 }
 ```
 
-### 22. How ArrayList Works Internally
+### 21. How ArrayList Works Internally
 
 #### 1. Definition
 
@@ -1033,7 +1044,7 @@ Think of an ArrayList like a Bank's Safety Deposit Vault.
 
 **The Migration**: The security team transfers the assets from the 10 original boxes into the new vault, assigns the 11th box to the new client, and closes down the old vault room.
 
-### 23. What is a LinkedList and how does it work?
+### 22. What is a LinkedList and how does it work?
 
 #### 1. Definition
 
@@ -1075,7 +1086,7 @@ public class BankTransactionProcessor {
 }
 ```
 
-### 24. What is the difference between ArrayList and LinkedList?
+### 23. What is the difference between ArrayList and LinkedList?
 
 #### 1. Definition
 
@@ -1086,7 +1097,7 @@ While both `ArrayList` and `LinkedList` implement the `List` interface, they rel
 
 ---
 
-### 26. What is the difference between HashMap, HashSet, TreeMap, and TreeSet?
+### 24. What is the difference between HashMap, HashSet, TreeMap, and TreeSet?
 
 #### Definition
 
@@ -1149,7 +1160,7 @@ public class BankCollectionSystem {
 }
 ```
 
-### 27. What is the difference between HashMap and ConcurrentHashMap?
+### 25. What is the difference between HashMap and ConcurrentHashMap?
 
 #### Definition
 
@@ -1326,7 +1337,7 @@ public class LoginRateLimiter {
 }
 ```
 
-### 28. What is Java Reflection API?
+### 26. What is Java Reflection API?
 
 #### Definition
 
@@ -1392,7 +1403,7 @@ public class BankingAuditorReflection {
 }
 ```
 
-### 29. If Reflection is risky, why does Java still have it?
+### 27. If Reflection is risky, why does Java still have it?
 
 #### Definition
 
