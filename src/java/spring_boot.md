@@ -759,3 +759,902 @@ public class AnnotationContextExample {
 
 Spring Boot automatically configures Hibernate as the default JPA implementation when we add the spring-boot-starter-data-jpa dependency to our project. This dependency includes the Hibernate JAR file as well as the Spring Boot auto-configuration for JPA.
 
+# Spring Boot Interview Guide — 30 Questions Answered
+
+> **Format:** Definition → Real-World Analogy → Code Example (where applicable)
+
+---
+
+## 1. How does Spring Boot decide which auto-configuration to apply?
+
+**Definition:**  
+Spring Boot uses `@EnableAutoConfiguration` (bundled inside `@SpringBootApplication`) to scan the classpath. It reads entries from `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` (Spring Boot 3.x) or `META-INF/spring.factories` (Spring Boot 2.x) and conditionally applies configurations using `@Conditional*` annotations like `@ConditionalOnClass`, `@ConditionalOnMissingBean`, etc.
+
+**Analogy:**  
+Think of it like a hotel check-in. The hotel (Spring Boot) automatically prepares your room based on what you booked (dependencies on classpath). If you booked a suite (added `spring-boot-starter-data-jpa`), they set up a Jacuzzi (DataSource, EntityManager). You don't have to ask for each item individually.
+
+**Code Example:**
+```java
+// Spring Boot checks: is HikariCP on the classpath? Is there no DataSource bean already?
+// If yes → auto-configures one. You don't write this — Spring Boot does it internally.
+
+@ConditionalOnClass(DataSource.class)
+@ConditionalOnMissingBean(DataSource.class)
+public class DataSourceAutoConfiguration {
+    // Sets up a DataSource automatically
+}
+```
+
+---
+
+## 2. What happens internally when you add `spring-boot-starter-web`?
+
+**Definition:**  
+`spring-boot-starter-web` is a dependency aggregator (a POM with no code). It pulls in: Spring MVC, Jackson (JSON), Tomcat (embedded), and Spring Boot auto-configuration. Spring Boot then detects these classes and auto-configures `DispatcherServlet`, `TomcatEmbeddedWebServerFactory`, `HttpMessageConverters`, etc.
+
+**Analogy:**  
+It's like ordering a "Full English Breakfast" at a café. You say one thing, but you get eggs, toast, bacon, beans, and tea — all bundled. You didn't order each item separately.
+
+**What gets set up automatically:**
+```
+spring-boot-starter-web
+  ├── spring-webmvc         → DispatcherServlet, @Controller support
+  ├── spring-boot-starter-tomcat → Embedded Tomcat server
+  ├── jackson-databind      → JSON serialization/deserialization
+  └── spring-boot-autoconfigure → Wires everything together
+```
+
+---
+
+## 3. Why does Spring Boot prefer convention over configuration?
+
+**Definition:**  
+Convention over configuration means Spring Boot provides sensible defaults so developers don't have to write repetitive boilerplate. You only configure what differs from the default. This is enforced through auto-configuration, starter POMs, and opinionated defaults (e.g., port 8080, H2 for in-memory DB).
+
+**Analogy:**  
+It's like a pre-furnished apartment. You can move in immediately and use the existing furniture. If you don't like the couch, you replace just that — you don't furnish the entire apartment from scratch.
+
+**Example:**
+```yaml
+# Without Spring Boot: write 50+ lines of XML for DispatcherServlet, DataSource, etc.
+# With Spring Boot — just this in application.yml is enough:
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
+    password: secret
+```
+
+---
+
+## 4. How does Spring Boot load `application.properties` internally?
+
+**Definition:**  
+Spring Boot uses `ConfigDataEnvironmentPostProcessor` during the `Environment` preparation phase of startup. It searches for config files in this order:
+1. Classpath root (`src/main/resources/`)
+2. Classpath `/config/`
+3. Current directory
+4. Current directory `/config/`
+
+Properties are loaded into the Spring `Environment` and bound to beans using `@Value` or `@ConfigurationProperties`.
+
+**Analogy:**  
+Like a chef reading a recipe card. The card (application.properties) is read at startup before cooking begins. The chef doesn't look at it during cooking — everything is already set up.
+
+**Code Example:**
+```java
+@Component
+@ConfigurationProperties(prefix = "app")
+public class AppConfig {
+    private String name;
+    private int timeout;
+    // getters and setters
+}
+```
+```properties
+# application.properties
+app.name=MyService
+app.timeout=5000
+```
+
+---
+
+## 5. What is the exact startup flow of a Spring Boot application?
+
+**Definition:**  
+The startup flow involves these ordered steps:
+
+```
+1. main() called → SpringApplication.run()
+2. SpringApplication created → determines application type (SERVLET / REACTIVE / NONE)
+3. Loads SpringApplicationRunListeners (from spring.factories)
+4. Prepares Environment (loads application.properties, env vars, CLI args)
+5. Prints Banner
+6. Creates ApplicationContext (AnnotationConfigServletWebServerApplicationContext for web)
+7. Prepares ApplicationContext (sets environment, registers BeanDefinitions)
+8. Refreshes ApplicationContext → triggers bean creation, auto-configuration
+9. Starts Embedded Web Server (Tomcat)
+10. Calls ApplicationRunners / CommandLineRunners
+11. Application is READY → publishes ApplicationReadyEvent
+```
+
+**Analogy:**  
+Like launching a rocket. Pre-checks → fuel loading → ignition → lift-off → orbit. Each step must succeed for the next to begin.
+
+---
+
+## 6. Difference between `@ComponentScan` and `@SpringBootApplication`?
+
+**Definition:**
+
+| Annotation | Purpose |
+|---|---|
+| `@ComponentScan` | Scans specified packages for `@Component`, `@Service`, `@Repository`, `@Controller` |
+| `@SpringBootApplication` | Meta-annotation combining `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan` |
+
+`@SpringBootApplication` scans from the package of the class it's placed on, downward.
+
+**Code Example:**
+```java
+// @SpringBootApplication = all three below combined
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan(basePackages = "com.example")
+public class MyApp {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApp.class, args);
+    }
+}
+```
+
+**Tip:** Always place `@SpringBootApplication` in the root package so component scanning covers all sub-packages.
+
+---
+
+## 7. How does Spring Boot detect embedded Tomcat and configure it?
+
+**Definition:**  
+`EmbeddedWebServerFactoryCustomizerAutoConfiguration` detects Tomcat on the classpath via `@ConditionalOnClass(Tomcat.class)`. It then creates a `TomcatServletWebServerFactory` bean, registers the `DispatcherServlet`, and starts Tomcat programmatically — no `web.xml` needed.
+
+**Analogy:**  
+Like a self-assembling IKEA shelf. The parts (Tomcat JARs) are in the box (classpath), and the instructions (auto-configuration) build it automatically. You don't need to hammer anything.
+
+**Customization Example:**
+```java
+@Bean
+public WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatCustomizer() {
+    return factory -> {
+        factory.setPort(9090);
+        factory.addConnectorCustomizers(connector ->
+            connector.setMaxPostSize(10 * 1024 * 1024)); // 10MB
+    };
+}
+```
+
+---
+
+## 8. What happens if two beans of same type exist and no `@Qualifier`?
+
+**Definition:**  
+Spring throws a `NoUniqueBeanDefinitionException` at startup. It cannot decide which bean to inject when there are multiple candidates and no disambiguation provided.
+
+**Analogy:**  
+You ask a waiter "bring me the wine" but there are 20 different wines available. The waiter doesn't know which one and stands confused. You need to specify: "bring me the Merlot" (`@Qualifier("merlot")`).
+
+**Fix Example:**
+```java
+@Component("fastEngine")
+public class FastEngine implements Engine { }
+
+@Component("slowEngine")
+public class SlowEngine implements Engine { }
+
+@Service
+public class Car {
+    @Autowired
+    @Qualifier("fastEngine")  // Must specify!
+    private Engine engine;
+}
+
+// OR use @Primary to set a default:
+@Component
+@Primary
+public class FastEngine implements Engine { }
+```
+
+---
+
+## 9. How does Spring Boot handle profile-specific configuration?
+
+**Definition:**  
+Spring Boot loads `application-{profile}.properties` or `application-{profile}.yml` in addition to the base `application.properties`. The active profile is set via `spring.profiles.active`. Profile-specific properties override the base ones.
+
+**Analogy:**  
+Like a restaurant with a lunch menu and a dinner menu. The base menu (application.properties) has common items. The dinner menu (application-prod.properties) overrides prices and adds specials.
+
+**Code Example:**
+```properties
+# application.properties (base)
+app.name=MyApp
+server.port=8080
+
+# application-dev.properties
+spring.datasource.url=jdbc:h2:mem:testdb
+
+# application-prod.properties
+spring.datasource.url=jdbc:mysql://prod-server/mydb
+```
+```bash
+# Activate profile
+java -jar app.jar --spring.profiles.active=prod
+```
+```java
+@Profile("dev")
+@Bean
+public DataSource devDataSource() { ... }
+```
+
+---
+
+## 10. What is the role of `SpringFactoriesLoader`?
+
+**Definition:**  
+`SpringFactoriesLoader` reads key-value pairs from `META-INF/spring.factories` files on the classpath. Spring Boot uses it to discover auto-configuration classes, application listeners, initializers, and run listeners — all without explicit registration.
+
+**Analogy:**  
+Like a franchise directory. Any new franchise (library/starter) registers itself in the central directory (`spring.factories`). The parent company (Spring Boot) reads the directory and knows all available services automatically.
+
+**Example spring.factories entry:**
+```properties
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.example.MyAutoConfiguration,\
+  com.example.AnotherAutoConfiguration
+```
+
+---
+
+## 11. How does Spring Boot reduce XML configuration completely?
+
+**Definition:**  
+Spring Boot eliminates XML by using:
+- **Java-based configuration** (`@Configuration`, `@Bean`)
+- **Auto-configuration** (reads classpath, applies defaults)
+- **Component scanning** (`@ComponentScan`)
+- **Annotation-driven** dependency injection (`@Autowired`, `@Value`)
+
+**Analogy:**  
+Old Spring = assembling furniture with a 100-page manual. Spring Boot = furniture that assembles itself. You only read the manual if you want to customize.
+
+**Old XML vs Spring Boot:**
+```xml
+<!-- OLD Spring XML -->
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://localhost/test"/>
+</bean>
+```
+```java
+// Spring Boot — just add properties file entry, no code needed!
+// application.properties:
+// spring.datasource.url=jdbc:mysql://localhost/test
+```
+
+---
+
+## 12. Difference between `@RestController` and `@Controller` internally?
+
+**Definition:**
+
+| Annotation | Behavior |
+|---|---|
+| `@Controller` | Returns view names (resolves to HTML templates via ViewResolver) |
+| `@RestController` | = `@Controller` + `@ResponseBody`. Writes return value directly to HTTP response body (as JSON/XML) |
+
+**Analogy:**  
+`@Controller` is a restaurant waiter who takes your order to the kitchen and brings back a plate (HTML view). `@RestController` is a vending machine — you press a button and data comes out directly (JSON).
+
+**Code Example:**
+```java
+@Controller
+public class WebController {
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("name", "World");
+        return "home"; // resolves to home.html (Thymeleaf/FreeMarker)
+    }
+}
+
+@RestController
+public class ApiController {
+    @GetMapping("/api/users")
+    public List<User> getUsers() {
+        return userService.findAll(); // written as JSON directly to response
+    }
+}
+```
+
+---
+
+## 13. How does Spring Boot manage dependency versions automatically?
+
+**Definition:**  
+`spring-boot-starter-parent` inherits from `spring-boot-dependencies` BOM (Bill of Materials). The BOM declares tested, compatible versions for hundreds of libraries. When you add a dependency without a version, Maven/Gradle picks it up from the BOM.
+
+**Analogy:**  
+Like a pre-approved vendor list in a company. HR (Spring Boot BOM) maintains a list of approved suppliers (libraries) with negotiated prices (versions). You just pick what you need — no price negotiation required.
+
+**pom.xml Example:**
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.0</version>
+</parent>
+
+<dependencies>
+    <!-- No version needed! BOM handles it -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+    </dependency>
+</dependencies>
+```
+
+---
+
+## 14. What is the lifecycle of a Spring Bean in Spring Boot?
+
+**Definition:**  
+Spring Bean lifecycle:
+
+```
+1. Instantiation       → Bean object created (constructor called)
+2. Dependency Injection → @Autowired fields/setters populated
+3. Bean Name Aware     → setBeanName() called (if BeanNameAware)
+4. Post Processing     → BeanPostProcessor.postProcessBeforeInitialization()
+5. @PostConstruct      → Init method called
+6. afterPropertiesSet()→ InitializingBean (if implemented)
+7. Custom init-method  → @Bean(initMethod="...")
+8. Bean is READY       → BeanPostProcessor.postProcessAfterInitialization()
+--- Bean in use ---
+9. @PreDestroy         → Called before destruction
+10. destroy()          → DisposableBean (if implemented)
+11. Custom destroy-method
+```
+
+**Code Example:**
+```java
+@Component
+public class MyService {
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Bean initialized — DB connections, caches set up");
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        System.out.println("Bean destroyed — releasing resources");
+    }
+}
+```
+
+---
+
+## 15. How does Spring Boot handle externalized configuration?
+
+**Definition:**  
+Spring Boot supports 17+ property sources with a defined priority order (higher overrides lower):
+
+```
+1. Command-line arguments        (--server.port=9090)
+2. SPRING_APPLICATION_JSON env var
+3. OS environment variables      (SERVER_PORT=9090)
+4. application-{profile}.properties
+5. application.properties
+6. @PropertySource annotations
+7. Default properties
+```
+
+**Analogy:**  
+Like a restaurant's pricing policy. Head office (default properties) sets base prices. Regional manager (profile properties) can override. Local manager (env var) can override that. Customer negotiation (CLI args) wins everything.
+
+**Code Example:**
+```java
+@Component
+public class ServerConfig {
+    @Value("${server.port:8080}")  // 8080 is the default fallback
+    private int port;
+}
+```
+```bash
+# Override at runtime — no code change needed
+export SERVER_PORT=9090
+java -jar app.jar --server.port=8888   # This wins
+```
+
+---
+
+## 16. What happens if `application.yml` and `application.properties` both exist?
+
+**Definition:**  
+Both files are loaded. `application.properties` takes **higher priority** than `application.yml` when both exist for the same key. However, it's best practice to use only one format to avoid confusion.
+
+**Analogy:**  
+Two people give you directions to the same destination. The one who speaks last (properties file) wins. But having two sources of truth is confusing — just pick one navigator.
+
+**Precedence:**
+```
+application.properties > application.yml
+```
+
+**Best Practice:**  
+Stick to one format per project. Use `.yml` for nested configs, `.properties` for simplicity.
+
+---
+
+## 17. How does Spring Boot integrate with Actuator internally?
+
+**Definition:**  
+`spring-boot-actuator` auto-configures management endpoints (`/actuator/health`, `/actuator/metrics`, etc.) via `ActuatorAutoConfiguration`. It registers `Endpoint` beans for health, metrics, info, etc. These are exposed over HTTP (or JMX) via `WebMvcEndpointHandlerMapping`.
+
+**Analogy:**  
+Like a car dashboard. The engine (your app) runs the car. The dashboard (Actuator) shows you speed, fuel, temperature in real time — without interfering with the engine.
+
+**Setup:**
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, info, env
+```
+```bash
+curl http://localhost:8080/actuator/health
+# {"status":"UP"}
+```
+
+---
+
+## 18. Difference between `@Configuration` and a normal class?
+
+**Definition:**
+
+| Aspect | Normal Class | `@Configuration` Class |
+|---|---|---|
+| Spring awareness | Not managed by Spring | Fully managed by Spring |
+| `@Bean` methods | Not intercepted | Proxied via CGLIB — calls are intercepted |
+| Singleton guarantee | No | Yes — `@Bean` methods return same instance |
+
+**The Key Difference:** `@Configuration` classes are CGLIB-proxied. When one `@Bean` method calls another inside the same class, Spring intercepts the call and returns the existing singleton instead of creating a new object.
+
+**Code Example:**
+```java
+@Configuration
+public class AppConfig {
+    @Bean
+    public ServiceA serviceA() {
+        return new ServiceA(serviceB()); // serviceB() intercepted — returns singleton
+    }
+
+    @Bean
+    public ServiceB serviceB() {
+        return new ServiceB();
+    }
+}
+
+// Without @Configuration (just @Component):
+// serviceB() would be called as a regular Java method → new object each time → NOT singleton!
+```
+
+---
+
+## 19. How does Spring Boot create `DataSource` automatically?
+
+**Definition:**  
+`DataSourceAutoConfiguration` triggers when `DataSource.class` and a JDBC driver are on the classpath and no `DataSource` bean exists. It reads `spring.datasource.*` properties and creates a `HikariDataSource` (default connection pool) automatically.
+
+**Analogy:**  
+Like a smart coffee machine. You fill water and beans (add driver + properties). The machine (Spring Boot) brews the coffee (DataSource) without any manual steps.
+
+**Example:**
+```properties
+# application.properties — this is ALL you need
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=secret
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+```
+```java
+// Spring Boot creates this automatically:
+// HikariDataSource with connection pool size 10 (default)
+
+// You can inject it directly:
+@Autowired
+private DataSource dataSource;
+```
+
+---
+
+## 20. What is the real use of `CommandLineRunner`?
+
+**Definition:**  
+`CommandLineRunner` is a functional interface with `run(String... args)` called after the Spring context is fully initialized but before the app starts serving traffic. Used for: data seeding, cache warming, startup validations, migration scripts.
+
+**Analogy:**  
+Like a restaurant's morning prep before opening. The kitchen (Spring context) is set up. Before customers arrive (before serving requests), the chef (CommandLineRunner) preps ingredients, warms the grill, and checks inventory.
+
+**Code Example:**
+```java
+@Component
+public class DataSeeder implements CommandLineRunner {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (userRepository.count() == 0) {
+            userRepository.save(new User("admin", "admin@example.com"));
+            System.out.println("✅ Admin user seeded!");
+        }
+    }
+}
+```
+
+---
+
+## 21. How does Spring Boot handle exception translation?
+
+**Definition:**  
+Spring Boot provides multiple layers of exception handling:
+1. `@ExceptionHandler` — method-level, handles exceptions in a single controller
+2. `@ControllerAdvice` / `@RestControllerAdvice` — global exception handler across all controllers
+3. `BasicErrorController` — default `/error` endpoint for unhandled exceptions
+4. `PersistenceExceptionTranslationPostProcessor` — translates JPA/JDBC exceptions to Spring's `DataAccessException` hierarchy
+
+**Analogy:**  
+Like airport security levels. First check: gate agent (`@ExceptionHandler`). Second check: terminal security (`@ControllerAdvice`). Final check: airport-wide (BasicErrorController).
+
+**Code Example:**
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new ErrorResponse("INTERNAL_ERROR", "Something went wrong"));
+    }
+}
+```
+
+---
+
+## 22. Difference between `@EnableAutoConfiguration` and `@Import`?
+
+**Definition:**
+
+| Annotation | Purpose |
+|---|---|
+| `@EnableAutoConfiguration` | Scans `spring.factories`/`AutoConfiguration.imports` and conditionally applies hundreds of auto-configurations |
+| `@Import` | Explicitly imports one or more specific `@Configuration` classes into the Spring context |
+
+`@EnableAutoConfiguration` is broad and conditional. `@Import` is explicit and always applied.
+
+**Code Example:**
+```java
+// @Import — explicit, always loaded
+@Configuration
+@Import({SecurityConfig.class, DataSourceConfig.class})
+public class AppConfig { }
+
+// @EnableAutoConfiguration — conditional, reads from spring.factories
+// Only loads DataSourceAutoConfiguration IF DataSource is on classpath AND no bean exists
+@SpringBootApplication  // includes @EnableAutoConfiguration
+public class App { }
+```
+
+---
+
+## 23. What happens if you exclude an auto-configuration class?
+
+**Definition:**  
+When you exclude an auto-configuration class, Spring Boot's `AutoConfigurationImportSelector` removes it from the list before creating beans. No beans from that configuration are created. Useful when you want to provide your own implementation.
+
+**Analogy:**  
+Like telling the hotel "I don't need housekeeping today." The service (auto-config) is available but you've opted out for this stay.
+
+**Code Example:**
+```java
+// Exclude DataSource auto-configuration (e.g., for testing with no DB)
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+public class App {
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
+    }
+}
+
+// OR in application.properties:
+// spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+```
+
+---
+
+## 24. How does Spring Boot support microservices so easily?
+
+**Definition:**  
+Spring Boot makes microservices easy through:
+- **Embedded server** — each service runs independently, no shared app server
+- **Actuator** — built-in health checks for service discovery (Eureka, Kubernetes)
+- **Spring Cloud** — complements with circuit breakers (Resilience4j), config server, API gateway
+- **Auto-configuration** — minimal setup for REST, messaging, security
+- **Fat JAR** — self-contained deployable unit (deploy anywhere: Docker, K8s, VMs)
+- **Profiles** — easy environment-specific config (dev/staging/prod)
+
+**Analogy:**  
+Like food trucks vs a restaurant chain. Each food truck (microservice) is self-contained, mobile, independently deployable. Spring Boot gives each truck its own kitchen (embedded Tomcat) and menu (configuration).
+
+---
+
+## 25. What is the difference between a Fat JAR and a Normal JAR?
+
+**Definition:**
+
+| | Normal JAR | Fat JAR (Uber JAR) |
+|---|---|---|
+| Contents | Only compiled classes | Classes + ALL dependencies + embedded server |
+| Dependencies | Must be on classpath separately | Bundled inside |
+| Deployment | Needs app server / classpath setup | `java -jar app.jar` — runs anywhere |
+| Size | Small (KB to few MB) | Large (10-100+ MB) |
+
+**Analogy:**  
+Normal JAR = a recipe card (needs ingredients separately). Fat JAR = a meal kit delivery (everything included, just cook and serve).
+
+**Build:**
+```xml
+<!-- pom.xml — spring-boot-maven-plugin creates the fat jar -->
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+</plugin>
+```
+```bash
+mvn package
+java -jar target/myapp-1.0.0.jar   # completely self-contained!
+```
+
+---
+
+## 26. How does Spring Boot handle logging by default?
+
+**Definition:**  
+Spring Boot uses **SLF4J** as the logging facade and **Logback** as the default implementation (via `spring-boot-starter-logging`). Default log level is `INFO`. Logs go to console by default. Configure via `application.properties`.
+
+**Analogy:**  
+SLF4J is like a universal TV remote (works with any TV). Logback is the default TV brand. You can swap to Log4j2 (another TV brand) without changing your remote (SLF4J code).
+
+**Configuration:**
+```properties
+# application.properties
+logging.level.root=INFO
+logging.level.com.example=DEBUG
+logging.file.name=logs/app.log
+logging.pattern.console=%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+```
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Service
+public class OrderService {
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
+    public void placeOrder(Order order) {
+        log.info("Placing order: {}", order.getId());
+        log.debug("Order details: {}", order);
+    }
+}
+```
+
+---
+
+## 27. How does Spring Boot decide server port priority?
+
+**Definition:**  
+Port is resolved in this priority order (highest to lowest):
+
+```
+1. CLI argument:          --server.port=9090
+2. OS environment var:    SERVER_PORT=9090
+3. application-{profile}.properties: server.port=9090
+4. application.properties: server.port=8080
+5. Default:               8080
+```
+
+**Special values:**
+- `server.port=0` → assigns a random available port (useful for tests)
+
+**Analogy:**  
+Like setting a meeting room. Your personal preference (CLI) overrides your manager's suggestion (env var), which overrides the team default (properties file).
+
+**Test Example:**
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class MyTest {
+    @LocalServerPort
+    private int port;  // injects the randomly assigned port
+}
+```
+
+---
+
+## 28. What happens internally when you hit a REST endpoint?
+
+**Definition:**  
+Full request flow:
+
+```
+1. HTTP Request arrives → Embedded Tomcat receives it
+2. Tomcat → passes to DispatcherServlet (Front Controller)
+3. DispatcherServlet → HandlerMapping (finds matching @RequestMapping method)
+4. HandlerMapping → returns HandlerExecutionChain (handler + interceptors)
+5. DispatcherServlet → HandlerAdapter (adapts and calls the controller method)
+6. Interceptors run (preHandle)
+7. Controller method executes → returns data
+8. @ResponseBody / @RestController → HttpMessageConverter converts to JSON
+9. Interceptors run (postHandle)
+10. Response written to HttpServletResponse → sent back to client
+```
+
+**Analogy:**  
+Like a restaurant order. Customer (HTTP request) → Hostess (Tomcat) → Head Waiter (DispatcherServlet) → Menu lookup (HandlerMapping) → Waiter (HandlerAdapter) → Chef (Controller) → Plating (MessageConverter) → Customer gets food (JSON response).
+
+---
+
+## 29. Why is Spring Boot preferred for cloud-native apps?
+
+**Definition:**  
+Spring Boot aligns with the **12-Factor App** methodology and cloud-native principles:
+
+| Cloud Requirement | Spring Boot Feature |
+|---|---|
+| Stateless | Encourages stateless REST services |
+| Config externalized | `application.properties`, env vars, Spring Cloud Config |
+| Health checks | Actuator `/health` endpoint |
+| Self-contained | Fat JAR with embedded Tomcat |
+| Fast startup | Minimal config, AOT compilation (Spring Boot 3+) |
+| Containerizable | Small Docker image via layered JARs |
+| Observability | Actuator + Micrometer + distributed tracing |
+| Resilience | Spring Cloud + Resilience4j integration |
+
+**Dockerfile Example:**
+```dockerfile
+FROM eclipse-temurin:21-jre
+COPY target/app.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+```
+
+---
+
+## 30. What are the most common Spring Boot performance mistakes?
+
+**Definition & Solutions:**
+
+### Mistake 1: N+1 Query Problem
+```java
+// BAD — fires N+1 queries
+List<Order> orders = orderRepo.findAll();
+orders.forEach(o -> o.getItems().size()); // lazy load triggers per order
+
+// GOOD — one query with JOIN FETCH
+@Query("SELECT o FROM Order o JOIN FETCH o.items")
+List<Order> findAllWithItems();
+```
+
+### Mistake 2: Not using connection pool tuning
+```properties
+# Default pool size (10) may be too small/large
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+```
+
+### Mistake 3: Loading entire dataset into memory
+```java
+// BAD
+List<User> allUsers = userRepo.findAll(); // millions of records → OutOfMemoryError
+
+// GOOD — use pagination
+Page<User> users = userRepo.findAll(PageRequest.of(0, 100));
+// OR use streams/JPA scrolling for batch processing
+```
+
+### Mistake 4: Disabling caching for expensive operations
+```java
+@Service
+public class ProductService {
+    @Cacheable("products")  // Cache after first call
+    public Product findById(Long id) {
+        return productRepo.findById(id).orElseThrow();
+    }
+}
+```
+```yaml
+spring:
+  cache:
+    type: redis  # Use Redis for distributed caching
+```
+
+### Mistake 5: Enabling all Actuator endpoints in production
+```yaml
+# BAD — exposes sensitive data
+management.endpoints.web.exposure.include=*
+
+# GOOD — only expose what's needed
+management.endpoints.web.exposure.include=health,metrics
+```
+
+### Mistake 6: Not using async for I/O-bound operations
+```java
+@Service
+public class EmailService {
+    @Async  // Runs in separate thread pool
+    public CompletableFuture<Void> sendEmail(String to, String body) {
+        // non-blocking email send
+        return CompletableFuture.completedFuture(null);
+    }
+}
+```
+
+---
+
+## Quick Reference Summary
+
+| # | Topic | Key Takeaway |
+|---|---|---|
+| 1 | Auto-configuration | `@Conditional*` + `spring.factories` |
+| 2 | starter-web | Aggregator POM → pulls Tomcat, MVC, Jackson |
+| 3 | Convention over config | Sensible defaults, override only what you need |
+| 4 | Properties loading | ConfigDataEnvironmentPostProcessor, 4 locations |
+| 5 | Startup flow | 11 ordered steps from main() to READY |
+| 6 | ComponentScan | Part of @SpringBootApplication |
+| 7 | Embedded Tomcat | ConditionalOnClass + TomcatServletWebServerFactory |
+| 8 | Duplicate beans | NoUniqueBeanDefinitionException → use @Qualifier/@Primary |
+| 9 | Profiles | application-{profile}.properties + @Profile |
+| 10 | SpringFactoriesLoader | Reads META-INF/spring.factories |
+| 11 | No XML | @Configuration + auto-config replaces all XML |
+| 12 | @RestController | = @Controller + @ResponseBody |
+| 13 | Dependency versions | spring-boot-dependencies BOM |
+| 14 | Bean lifecycle | Instantiate → Inject → @PostConstruct → Use → @PreDestroy |
+| 15 | Externalized config | 17 property sources, CLI args win |
+| 16 | yml vs properties | Both loaded; .properties takes higher priority |
+| 17 | Actuator | Auto-configured management endpoints |
+| 18 | @Configuration | CGLIB-proxied for singleton guarantee |
+| 19 | DataSource | DataSourceAutoConfiguration → HikariCP |
+| 20 | CommandLineRunner | Post-startup init: seeding, warming caches |
+| 21 | Exception handling | @ExceptionHandler → @ControllerAdvice → BasicErrorController |
+| 22 | @EnableAutoConfiguration | Conditional + broad vs @Import (explicit) |
+| 23 | Exclude auto-config | Removed before bean creation |
+| 24 | Microservices | Embedded server + fat JAR + actuator + Spring Cloud |
+| 25 | Fat JAR | Self-contained: classes + deps + server |
+| 26 | Logging | SLF4J + Logback default, INFO level |
+| 27 | Port priority | CLI > env var > profile props > props > default 8080 |
+| 28 | REST request flow | Tomcat → DispatcherServlet → HandlerMapping → Controller |
+| 29 | Cloud-native | 12-factor alignment, actuator, layered JARs |
+| 30 | Performance mistakes | N+1, pool tuning, pagination, caching, async |
+
+---
